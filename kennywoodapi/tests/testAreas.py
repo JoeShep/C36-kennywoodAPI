@@ -3,11 +3,17 @@ from rest_framework import status
 from django.test import TestCase
 from django.urls import reverse
 from kennywoodapi.models import ParkArea
-
-print("test file loaded------------------------")
-
+from django.contrib.auth.models import User
+from rest_framework.authtoken.models import Token
 
 class TestParkArea(TestCase):
+
+    def setUp(self):
+        self.username = 'testuser'
+        self.password = 'foobar'
+        self.user = User.objects.create_user(username=self.username, password=self.password)
+        self.token = Token.objects.create(user=self.user)
+
     def test_post_area(self):
         # define a park area to be sent to the API
         new_area = {
@@ -17,7 +23,7 @@ class TestParkArea(TestCase):
 
         #  Use the client to send the request and store the response
         response = self.client.post(
-            reverse('parkarea-list'), new_area
+            reverse('parkarea-list'), new_area, HTTP_AUTHORIZATION='Token ' + str(self.token)
           )
 
         # Getting 200 back because we have a success url
